@@ -10,7 +10,6 @@ import {
   Menu,
   X,
   LayoutGrid,
-  Code,
 } from "lucide-react";
 
 interface HeaderProps {
@@ -41,7 +40,7 @@ export default function Header({
       {/* Dynamic Header Container */}
       <div className="mx-auto bg-zinc-900/90 backdrop-blur-xl border border-white/5 rounded-full px-3 py-1 shadow-[0_8px_32px_rgba(0,0,0,0.6)] flex justify-between items-center transition-all duration-500 relative overflow-hidden">
         {/* Animated Top Light Beam */}
-        <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-blue-500/20 to-transparent -translate-x-full group-hover/header:translate-x-full transition-transform duration-1000 ease-in-out"></div>
+        <div className="absolute top-0 left-0 w-full h-px bg-linear-to-r from-transparent via-blue-500/20 to-transparent -translate-x-full group-hover/header:translate-x-full transition-transform duration-1000 ease-in-out"></div>
 
         <button
           onClick={onLogoClick}
@@ -49,7 +48,7 @@ export default function Header({
           type="button"
         >
           <div className="relative group/logo">
-            <div className="absolute -inset-1.5 bg-gradient-to-tr from-blue-600/20 to-cyan-400/20 rounded-lg blur-md opacity-0 group-hover/logo:opacity-100 transition-opacity duration-500 animate-pulse"></div>
+            <div className="absolute -inset-1.5 bg-linear-to-tr from-blue-600/20 to-cyan-400/20 rounded-lg blur-md opacity-0 group-hover/logo:opacity-100 transition-opacity duration-500 animate-pulse"></div>
             <div className="relative flex items-center justify-center w-8 h-8 bg-zinc-950 rounded-full border border-zinc-800 shadow-inner text-blue-400 group-hover/logo:border-blue-500/50 transition-colors">
               <LayoutGrid className="w-4 h-4 group-hover/logo:scale-110 transition-transform duration-300" />
             </div>
@@ -57,7 +56,7 @@ export default function Header({
           <div className="flex flex-col justify-center">
             <div className="flex items-center gap-1.5">
               <h1 className="text-[16px] font-black tracking-tight uppercase flex items-center leading-none">
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500">
+                <span className="bg-clip-text text-transparent bg-linear-to-r from-blue-400 via-cyan-400 to-blue-500">
                   DatOps
                 </span>
               </h1>
@@ -66,7 +65,7 @@ export default function Header({
             <div className="flex items-center gap-1.5 mt-0.5">
               <div className="flex gap-0.5">
                 <div className="w-1 h-1 rounded-full bg-zinc-800"></div>
-                <div className="w-3 h-[1px] bg-zinc-800 self-center"></div>
+                <div className="w-3 h-px bg-zinc-800 self-center"></div>
               </div>
               <span className="text-[8px] text-zinc-500 font-black tracking-[0.25em] uppercase leading-none opacity-80">
                 Data Operations Hub
