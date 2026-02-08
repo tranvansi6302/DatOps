@@ -1,0 +1,38 @@
+/* Custom Loader Animation */
+.custom-loader {
+  width: 20px;
+  aspect-ratio: 1;
+  color: #6366f1;
+  position: relative;
+  background: radial-gradient(5px, currentColor 94%, #0000);
+}
+
+.custom-loader:before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    radial-gradient(4.5px at bottom right, #0000 94%, currentColor) top left,
+    radial-gradient(4.5px at bottom left, #0000 94%, currentColor) top right,
+    radial-gradient(4.5px at top right, #0000 94%, currentColor) bottom left,
+    radial-gradient(4.5px at top left, #0000 94%, currentColor) bottom right;
+  background-size: 10px 10px;
+  background-repeat: no-repeat;
+  animation: loader-spin 1.5s infinite cubic-bezier(0.3, 1, 0, 1);
+}
+
+@keyframes loader-spin {
+  33% {
+    inset: -5px;
+    transform: rotate(0deg);
+  }
+  66% {
+    inset: -5px;
+    transform: rotate(90deg);
+  }
+  100% {
+    inset: 0;
+    transform: rotate(90deg);
+  }
+}
