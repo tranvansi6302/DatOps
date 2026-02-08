@@ -12,6 +12,7 @@ import ImportJsonModal from "./components/ImportJsonModal";
 import SettingsModal from "./components/SettingsModal";
 import LoadingScreen from "./components/LoadingScreen";
 import DocTabSelectModal from "./components/DocTabSelectModal";
+import EmptyState from "./components/EmptyState";
 import { showSuccess, showError, showWarning } from "./utils/toast";
 
 interface SheetTab {
@@ -755,6 +756,11 @@ export default function App() {
             onSubmit={() => handleSubmit()}
             onLogoClick={() => setTasks([])}
           />
+
+          {/* Empty State when no connection */}
+          {!sheetsInfo && tasks.length === 0 && !submitting && (
+            <EmptyState onSettingsClick={() => setShowSettingsModal(true)} />
+          )}
 
           {/* Dashboard Info (Empty State or Pushing) */}
           {((tasks.length === 0 && sheetsInfo) ||

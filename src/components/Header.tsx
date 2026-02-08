@@ -75,65 +75,67 @@ export default function Header({
         </button>
 
         <div className="hidden lg:flex gap-3 items-center">
-          {connectedSheetName && (
-            <div className="flex items-center gap-2 text-[11px] bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-1.5 h-8 hover:border-emerald-500/30 transition-all cursor-default group overflow-hidden relative">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-20"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500/80 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
-              </span>
+          {connectedSheetName &&
+            connectedSheetName !== "No connection" &&
+            connectedSheetName.trim() !== "" && (
+              <div className="flex items-center gap-2 text-[11px] bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-1.5 h-8 hover:border-emerald-500/30 transition-all cursor-default group overflow-hidden relative">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-20"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500/80 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
+                </span>
 
-              <div className="flex items-center gap-3">
-                {connectedSheetName.split("|").length >= 2 ? (
-                  <>
-                    <div
-                      className="flex items-center gap-1.5"
-                      title="Detail Sheet"
-                    >
+                <div className="flex items-center gap-3">
+                  {connectedSheetName.split("|").length >= 2 ? (
+                    <>
+                      <div
+                        className="flex items-center gap-1.5"
+                        title="Detail Sheet"
+                      >
+                        <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-500/70" />
+                        <span className="text-zinc-400 font-medium truncate max-w-[80px]">
+                          {connectedSheetName
+                            .split("|")[0]
+                            .replace(/^[📊\s]+/, "")}
+                        </span>
+                      </div>
+                      <div className="w-px h-3 bg-zinc-800"></div>
+                      <div
+                        className="flex items-center gap-1.5"
+                        title="Leader Sheet"
+                      >
+                        <Table2 className="w-3.5 h-3.5 text-blue-500/70" />
+                        <span className="text-zinc-400 font-medium truncate max-w-[80px]">
+                          {connectedSheetName
+                            .split("|")[1]
+                            .replace(/^[📋\s]+/, "")}
+                        </span>
+                      </div>
+                      {connectedSheetName.split("|")[2] && (
+                        <>
+                          <div className="w-px h-3 bg-zinc-800"></div>
+                          <div
+                            className="flex items-center gap-1.5"
+                            title="Google Doc"
+                          >
+                            <FileJson className="w-3.5 h-3.5 text-amber-500/70" />
+                            <span className="text-zinc-400 font-medium truncate max-w-[80px]">
+                              {connectedSheetName.split("|")[2]}
+                            </span>
+                          </div>
+                        </>
+                      )}
+                    </>
+                  ) : (
+                    <div className="flex items-center gap-1.5">
                       <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-500/70" />
-                      <span className="text-zinc-400 font-medium truncate max-w-[80px]">
-                        {connectedSheetName
-                          .split("|")[0]
-                          .replace(/^[📊\s]+/, "")}
+                      <span className="text-zinc-400 font-medium truncate max-w-[150px]">
+                        {connectedSheetName.replace(/^[📊\s]+/, "")}
                       </span>
                     </div>
-                    <div className="w-px h-3 bg-zinc-800"></div>
-                    <div
-                      className="flex items-center gap-1.5"
-                      title="Leader Sheet"
-                    >
-                      <Table2 className="w-3.5 h-3.5 text-blue-500/70" />
-                      <span className="text-zinc-400 font-medium truncate max-w-[80px]">
-                        {connectedSheetName
-                          .split("|")[1]
-                          .replace(/^[📋\s]+/, "")}
-                      </span>
-                    </div>
-                    {connectedSheetName.split("|")[2] && (
-                      <>
-                        <div className="w-px h-3 bg-zinc-800"></div>
-                        <div
-                          className="flex items-center gap-1.5"
-                          title="Google Doc"
-                        >
-                          <FileJson className="w-3.5 h-3.5 text-amber-500/70" />
-                          <span className="text-zinc-400 font-medium truncate max-w-[80px]">
-                            {connectedSheetName.split("|")[2]}
-                          </span>
-                        </div>
-                      </>
-                    )}
-                  </>
-                ) : (
-                  <div className="flex items-center gap-1.5">
-                    <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-500/70" />
-                    <span className="text-zinc-400 font-medium truncate max-w-[150px]">
-                      {connectedSheetName.replace(/^[📊\s]+/, "")}
-                    </span>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
           <div className="flex items-center bg-zinc-950/50 rounded-lg border border-zinc-800/50 overflow-hidden">
             <button
@@ -176,17 +178,19 @@ export default function Header({
         </div>
 
         <div className="lg:hidden flex items-center gap-1.5">
-          {connectedSheetName && (
-            <div className="flex items-center gap-1 px-1.5 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
-              </span>
-              <span className="text-[9px] font-black text-emerald-500 uppercase tracking-tighter">
-                Connected
-              </span>
-            </div>
-          )}
+          {connectedSheetName &&
+            connectedSheetName !== "No connection" &&
+            connectedSheetName.trim() !== "" && (
+              <div className="flex items-center gap-1 px-1.5 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+                </span>
+                <span className="text-[9px] font-black text-emerald-500 uppercase tracking-tighter">
+                  Connected
+                </span>
+              </div>
+            )}
           <button
             type="button"
             onClick={toggleMenu}
@@ -205,44 +209,46 @@ export default function Header({
       {isMenuOpen && (
         <div className="lg:hidden mt-1 p-3 bg-zinc-900/95 backdrop-blur-xl border border-zinc-800 rounded-xl shadow-2xl animate-in slide-in-from-top-2 duration-200">
           <div className="flex flex-col gap-3">
-            {connectedSheetName && (
-              <div className="p-3 bg-zinc-950 border border-zinc-800 rounded-xl space-y-2">
-                <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mb-1">
-                  Connected Resources
-                </div>
-                {connectedSheetName.split("|").length >= 2 ? (
-                  <div className="space-y-2">
+            {connectedSheetName &&
+              connectedSheetName !== "No connection" &&
+              connectedSheetName.trim() !== "" && (
+                <div className="p-3 bg-zinc-950 border border-zinc-800 rounded-xl space-y-2">
+                  <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mb-1">
+                    Connected Resources
+                  </div>
+                  {connectedSheetName.split("|").length >= 2 ? (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-xs">
+                        <FileSpreadsheet className="w-4 h-4 text-emerald-500" />
+                        <span className="text-zinc-300 truncate">
+                          {connectedSheetName.split("|")[0]}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <Table2 className="w-4 h-4 text-blue-500" />
+                        <span className="text-zinc-300 truncate">
+                          {connectedSheetName.split("|")[1]}
+                        </span>
+                      </div>
+                      {connectedSheetName.split("|")[2] && (
+                        <div className="flex items-center gap-2 text-xs">
+                          <FileJson className="w-4 h-4 text-amber-500" />
+                          <span className="text-zinc-300 truncate">
+                            {connectedSheetName.split("|")[2]}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
                     <div className="flex items-center gap-2 text-xs">
                       <FileSpreadsheet className="w-4 h-4 text-emerald-500" />
                       <span className="text-zinc-300 truncate">
-                        {connectedSheetName.split("|")[0]}
+                        {connectedSheetName}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 text-xs">
-                      <Table2 className="w-4 h-4 text-blue-500" />
-                      <span className="text-zinc-300 truncate">
-                        {connectedSheetName.split("|")[1]}
-                      </span>
-                    </div>
-                    {connectedSheetName.split("|")[2] && (
-                      <div className="flex items-center gap-2 text-xs">
-                        <FileJson className="w-4 h-4 text-amber-500" />
-                        <span className="text-zinc-300 truncate">
-                          {connectedSheetName.split("|")[2]}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2 text-xs">
-                    <FileSpreadsheet className="w-4 h-4 text-emerald-500" />
-                    <span className="text-zinc-300 truncate">
-                      {connectedSheetName}
-                    </span>
-                  </div>
-                )}
-              </div>
-            )}
+                  )}
+                </div>
+              )}
 
             <div className="grid grid-cols-2 gap-2">
               <button
