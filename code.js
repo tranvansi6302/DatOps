@@ -757,6 +757,13 @@ function doPost(e) {
                     }
                 }
 
+                // Column B (epicCode) - Bold font
+                leaderSheet.getRange(insertAtL, 2, rowCount, 1).setFontWeight("bold");
+
+                // Column E (epicTitle) - Background #CFE2F3, text #CC2727, font bold
+                const colE = leaderSheet.getRange(insertAtL, 5, rowCount, 1);
+                colE.setBackground("#CFE2F3").setFontColor("#CC2727").setFontWeight("bold");
+
                 const leaderRows = leaderTasksData.map((t, idx) => {
                     const subCount = (t.subTasks || []).length;
                     return [
@@ -779,6 +786,40 @@ function doPost(e) {
                     ];
                 });
                 leaderSheet.getRange(insertAtL, 6, rowCount, 16).setValues(leaderRows);
+
+                // Column G (empty column) - Text color #ea4335
+                leaderSheet.getRange(insertAtL, 7, rowCount, 1).setFontColor("#ea4335");
+
+                // Column H (pointsDev) - Center align, font bold, text #ea4335, bg #F4CCCC
+                const colH = leaderSheet.getRange(insertAtL, 8, rowCount, 1);
+                colH.setHorizontalAlignment("center").setFontWeight("bold").setFontColor("#ea4335").setBackground("#F4CCCC");
+
+                // Column I (subCount) - Center align
+                leaderSheet.getRange(insertAtL, 9, rowCount, 1).setHorizontalAlignment("center");
+
+                // Column K (startDate) - Date format dd/mm/yyyy, right align
+                const colK = leaderSheet.getRange(insertAtL, 11, rowCount, 1);
+                colK.setNumberFormat("dd/mm/yyyy").setHorizontalAlignment("right");
+
+                // Column L (endDate) - Date format dd/mm/yyyy, right align
+                const colL = leaderSheet.getRange(insertAtL, 12, rowCount, 1);
+                colL.setNumberFormat("dd/mm/yyyy").setHorizontalAlignment("right");
+
+                // Column N (delayDate) - Date format dd/mm/yyyy, right align
+                const colN = leaderSheet.getRange(insertAtL, 14, rowCount, 1);
+                colN.setNumberFormat("dd/mm/yyyy").setHorizontalAlignment("right");
+
+                // Column P (statusLeader) - Center align, text #ea4335, font bold
+                const colP = leaderSheet.getRange(insertAtL, 16, rowCount, 1);
+                colP.setHorizontalAlignment("center").setFontColor("#ea4335").setFontWeight("bold");
+
+                // Column Q (pointsLeader) - Font bold, center align
+                const colQ = leaderSheet.getRange(insertAtL, 17, rowCount, 1);
+                colQ.setFontWeight("bold").setHorizontalAlignment("center");
+
+                // Column U (pointsPm) - Center align, font bold, text #ea4335, bg #EAD1DC
+                const colU = leaderSheet.getRange(insertAtL, 21, rowCount, 1);
+                colU.setHorizontalAlignment("center").setFontWeight("bold").setFontColor("#ea4335").setBackground("#EAD1DC");
 
                 applyChipStyle(leaderSheet.getRange(insertAtL, 10, rowCount, 1), "PRIORITY");
                 applyChipStyle(leaderSheet.getRange(insertAtL, 15, rowCount, 1), "L_STATUS");
@@ -1048,6 +1089,10 @@ function updateSprintSheet(ss, epics, currentEpicStt) {
             sprintSheet.getRange(startRow, 1).setHorizontalAlignment("center");
         }
 
+        // Apply bold font to columns B and C (epicCode and epicTitle)
+        sprintSheet.getRange(startRow, 2, rowCount, 1).setFontWeight("bold"); // Column B
+        sprintSheet.getRange(startRow, 3, rowCount, 1).setFontWeight("bold"); // Column C
+
         const sprintData = sprintTasksData.map((t, idx) => {
             const subCount = (t.subTasks || []).length;
             const effort = subCount * (parseFloat(t.timeValue) || 0);
@@ -1065,17 +1110,39 @@ function updateSprintSheet(ss, epics, currentEpicStt) {
 
         sprintSheet.getRange(startRow, 4, rowCount, 8).setValues(sprintData);
 
+        // Column E (startDate) - Format date and align right
+        const colE = sprintSheet.getRange(startRow, 5, rowCount, 1);
+        colE.setNumberFormat("dd/mm/yyyy").setHorizontalAlignment("right");
+
+        // Column F (endDate) - Format date and align right
+        const colF = sprintSheet.getRange(startRow, 6, rowCount, 1);
+        colF.setNumberFormat("dd/mm/yyyy").setHorizontalAlignment("right");
+
+        // Column G (delayDate) - Background #EA9999, format date and align right
+        const colG = sprintSheet.getRange(startRow, 7, rowCount, 1);
+        colG.setBackground("#EA9999").setNumberFormat("dd/mm/yyyy").setHorizontalAlignment("right");
+
+        // Column H (finishedDate) - Background #FBBC04, format date and align right
+        const colH = sprintSheet.getRange(startRow, 8, rowCount, 1);
+        colH.setBackground("#FBBC04").setNumberFormat("dd/mm/yyyy").setHorizontalAlignment("right");
+
+        // Column I (pointsDev) - Bold font, background #D9D9D9
         const pDevRange = sprintSheet.getRange(startRow, 9, rowCount, 1);
-        pDevRange.setBackground("#E9E8E8").setFontColor("black").setHorizontalAlignment("center");
+        pDevRange.setBackground("#D9D9D9").setFontWeight("bold").setFontColor("black").setHorizontalAlignment("center");
         pDevRange.setDataValidation(
             SpreadsheetApp.newDataValidation().requireValueInList(["1", "2", "3", "4", "5", "6", "7", "N/A"]).build()
         );
 
+        // Column J (subCount) - Background #B6D7A8, bold font, center alignment
+        const colJ = sprintSheet.getRange(startRow, 10, rowCount, 1);
+        colJ.setBackground("#B6D7A8").setFontWeight("bold").setHorizontalAlignment("center");
+
+        // Column K (effort) - Background #B6D7A8, bold font, center alignment
+        const colK = sprintSheet.getRange(startRow, 11, rowCount, 1);
+        colK.setBackground("#B6D7A8").setFontWeight("bold").setHorizontalAlignment("center");
+
         sprintSheet
             .getRange(startRow, 1, rowCount, 11)
             .setBorder(true, true, true, true, true, true, "#cccccc", SpreadsheetApp.BorderStyle.SOLID);
-
-        const effortRange = sprintSheet.getRange(startRow, 11, rowCount, 1);
-        effortRange.setHorizontalAlignment("right");
     });
 }
