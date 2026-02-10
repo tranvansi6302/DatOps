@@ -407,8 +407,7 @@ export default function App() {
       epics.forEach((epicItem: any) => {
         const epicTitle = epicItem.epicName || epicItem.epic || "No Epic Title";
         const epicCode = epicItem.code || epicItem.epicCode || "N/A";
-        const epicSystem = epicItem.system || epicItem.epicSystem || "N/A";
-        const epicActor = epicItem.actor || epicItem.epicActor || "N/A";
+        const epicSystem = epicItem.system || epicItem.epicSystem || "System";
         const epicOverview = epicItem.overview || "";
 
         const rawReqs = epicItem.requirements || epicItem.requirdment || [];
@@ -470,8 +469,8 @@ export default function App() {
             pointsDev: tc.pointsDev || "3",
             code: epicCode,
             system: epicSystem,
-            systemPrefix: "User",
-            actor: epicActor,
+            systemPrefix: "",
+            actor: "",
             actorPrefix: "User",
             epicOverview: epicOverview,
             epicRequirements: reqStr,
@@ -523,8 +522,8 @@ export default function App() {
             pointsDev: taskObj.pointsDev || "3",
             code: epicCode,
             system: epicSystem,
-            systemPrefix: "User",
-            actor: epicActor,
+            systemPrefix: "",
+            actor: "",
             actorPrefix: "User",
             epicOverview: epicOverview,
             epicRequirements: reqStr,
@@ -547,6 +546,10 @@ export default function App() {
       });
 
       setTasks(allTasks);
+      // Collapse all epics by default
+      const uniqueEpics = Array.from(new Set(allTasks.map((t) => t.epicName)));
+      setCollapsedEpics(new Set(uniqueEpics));
+
       setJsonInput("");
       showSuccess(`Loaded ${allTasks.length} tasks successfully!`);
     } catch (error) {
@@ -563,8 +566,22 @@ export default function App() {
     field: "code" | "system" | "actor" | "systemPrefix" | "actorPrefix",
     value: string,
   ) => {
+    // Get unique epic names in order
+    const epicNames = Array.from(new Set(tasks.map((t) => t.epicName)));
+    const isFirstEpic = epicNames[0] === epicName;
+
     setTasks((prev) =>
-      prev.map((t) => (t.epicName === epicName ? { ...t, [field]: value } : t)),
+      prev.map((t) => {
+        // If it's the target epic, update it
+        if (t.epicName === epicName) {
+          return { ...t, [field]: value };
+        }
+        // If the first epic is being updated, apply to ALL other epics
+        if (isFirstEpic) {
+          return { ...t, [field]: value };
+        }
+        return t;
+      }),
     );
   };
 
@@ -622,13 +639,11 @@ export default function App() {
         const sampleTask = tasks.find((t) => t.epicName === name);
         return {
           epicName: name,
-          epicCode: sampleTask?.code || "N/A", // Dùng làm tiêu đề trang Doc
+          epicCode: sampleTask?.code || "N/A",
           epicSystem: sampleTask
             ? `${sampleTask.systemPrefix} ${sampleTask.system}`.trim()
             : "",
-          epicActor: sampleTask
-            ? `${sampleTask.actorPrefix} ${sampleTask.actor}`.trim()
-            : "",
+          epicActor: sampleTask?.actorPrefix || "",
           overview:
             overviewMap && overviewMap[name] !== undefined
               ? overviewMap[name]

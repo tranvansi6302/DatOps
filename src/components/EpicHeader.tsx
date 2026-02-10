@@ -81,11 +81,11 @@ export default function EpicHeader({
           </span>
         </div>
 
-        {/* Column 3: Meta Inputs (Horizontal) */}
-        <div className="flex items-center gap-3">
+        {/* Meta Inputs */}
+        <div className="flex items-center gap-6 ml-auto">
           {/* Code */}
-          <label className="text-xs font-medium text-zinc-400">Code</label>
           <div className="flex items-center gap-2">
+            <label className="text-xs font-medium text-zinc-400">Code</label>
             <input
               className="w-[120px] h-[30px] bg-zinc-950 border border-zinc-800 text-zinc-300 text-xs rounded px-2 outline-none focus:border-indigo-500 transition-all font-mono"
               placeholder="#PROJECT.CODE"
@@ -95,11 +95,13 @@ export default function EpicHeader({
               }
             />
           </div>
+
+          {/* System: Dropdown + Text */}
           <div className="flex items-center gap-2">
             <label className="text-xs font-medium text-zinc-400">System</label>
-            <div className="flex rounded-md bg-zinc-950 border border-zinc-800 overflow-hidden focus-within:border-indigo-500 min-w-[180px]">
+            <div className="flex rounded bg-zinc-950 border border-zinc-800 overflow-hidden focus-within:border-indigo-500 h-[30px]">
               <select
-                className="bg-zinc-900 text-zinc-300 text-xs px-2 py-1 outline-none border-r border-zinc-800 w-[70px] cursor-pointer"
+                className="bg-zinc-900 text-zinc-300 text-[10px] px-1 outline-none border-r border-zinc-800 w-[65px] cursor-pointer"
                 value={epicTasks[0]?.systemPrefix || "User"}
                 onChange={(e) =>
                   onUpdateEpicMeta(epicName, "systemPrefix", e.target.value)
@@ -112,7 +114,7 @@ export default function EpicHeader({
                 ))}
               </select>
               <input
-                className="flex-1 bg-transparent text-zinc-300 text-xs px-2 py-1 outline-none min-w-[80px]"
+                className="bg-transparent text-zinc-300 text-xs px-2 py-1 outline-none w-[120px]"
                 placeholder="SYSTEM"
                 value={epicTasks[0]?.system || ""}
                 onChange={(e) =>
@@ -121,29 +123,23 @@ export default function EpicHeader({
               />
             </div>
           </div>
+
+          {/* Actor: ONLY Dropdown */}
           <div className="flex items-center gap-2">
             <label className="text-xs font-medium text-zinc-400">Actor</label>
-            <div className="flex rounded-md bg-zinc-950 border border-zinc-800 overflow-hidden focus-within:border-indigo-500 min-w-[180px]">
-              <select
-                className="bg-zinc-900 text-zinc-300 text-xs px-2 py-1 outline-none border-r border-zinc-800 w-[70px] cursor-pointer"
-                value={epicTasks[0]?.actorPrefix || "User"}
-                onChange={(e) =>
-                  onUpdateEpicMeta(epicName, "actorPrefix", e.target.value)
-                }
-              >
-                {systemActorPrefixOptions.map((opt) => (
-                  <option key={opt}>{opt}</option>
-                ))}
-              </select>
-              <input
-                className="flex-1 bg-transparent text-zinc-300 text-xs px-2 py-1 outline-none min-w-[80px]"
-                placeholder="ACTOR"
-                value={epicTasks[0]?.actor || ""}
-                onChange={(e) =>
-                  onUpdateEpicMeta(epicName, "actor", e.target.value)
-                }
-              />
-            </div>
+            <select
+              className="w-[100px] h-[30px] bg-zinc-950 border border-zinc-800 text-zinc-300 text-xs rounded px-2 outline-none focus:border-indigo-500 transition-all cursor-pointer"
+              value={epicTasks[0]?.actorPrefix || "User"}
+              onChange={(e) =>
+                onUpdateEpicMeta(epicName, "actorPrefix", e.target.value)
+              }
+            >
+              {systemActorPrefixOptions.map((opt) => (
+                <option key={opt} className="bg-zinc-900 text-zinc-300">
+                  {opt}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
       </div>

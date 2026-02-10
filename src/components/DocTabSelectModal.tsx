@@ -51,12 +51,24 @@ export default function DocTabSelectModal({
     if (show) {
       setVersion(defaultVersion || "1.0");
       setSummary("");
-      setSelectedTabId("");
-      setSelectedDetailSheet("NEW");
 
-      // Default to first leader sheet if available
+      // Default to last tab
+      if (tabs && tabs.length > 0) {
+        setSelectedTabId(tabs[tabs.length - 1].id);
+      } else {
+        setSelectedTabId("");
+      }
+
+      // Default to last dev sheet
+      if (devSheets && devSheets.length > 0) {
+        setSelectedDetailSheet(devSheets[devSheets.length - 1].name);
+      } else {
+        setSelectedDetailSheet("NEW");
+      }
+
+      // Default to last leader sheet
       if (leaderSheets && leaderSheets.length > 0) {
-        setSelectedLeaderSheet(leaderSheets[0].name);
+        setSelectedLeaderSheet(leaderSheets[leaderSheets.length - 1].name);
       } else {
         setSelectedLeaderSheet("");
       }

@@ -231,7 +231,7 @@ function updateRevisionHistory(body, epics, userVersion, userDescription) {
     const searchDate = `<${currentDate}>`;
 
     // Description logic
-    const newDescriptions = userDescription ? userDescription : epics.map(epic => epic.epicName || "N/A").join(", ");
+    const newDescriptions = userDescription ? userDescription : epics.map(epic => `${epic.epicCode || ""} ${epic.epicName || ""}`.trim()).join(", ");
 
     const tables = body.getTables();
     let revisionTable = null;
@@ -602,7 +602,7 @@ function writeToGoogleDoc(docId, epics, tabId, userVersion, userDesc) {
             body.appendPageBreak();
         }
 
-        const titleText = `#${index + 1}. ${epic.epicCode || ""} ${epic.epicName || ""}`;
+        const titleText = `${epic.epicCode || ""} ${epic.epicName || ""}`.trim();
         const title = body.appendParagraph(titleText);
         // Force style to override Google Doc defaults for Heading 1
         title.setHeading(DocumentApp.ParagraphHeading.HEADING1)
