@@ -59,12 +59,8 @@ export default function DocTabSelectModal({
         setSelectedTabId("");
       }
 
-      // Default to last dev sheet
-      if (devSheets && devSheets.length > 0) {
-        setSelectedDetailSheet(devSheets[devSheets.length - 1].name);
-      } else {
-        setSelectedDetailSheet("NEW");
-      }
+      // Default to Create New
+      setSelectedDetailSheet("NEW");
 
       // Default to last leader sheet
       if (leaderSheets && leaderSheets.length > 0) {

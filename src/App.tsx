@@ -20,6 +20,23 @@ interface SheetTab {
   name: string;
 }
 
+interface QueueItem {
+  id: string;
+  payload: any;
+  params: {
+    tabId: string | null;
+    version?: string;
+    summary?: string;
+    detailSheetName?: string | null;
+    leaderSheetName?: string | null;
+    leaderFileId: string;
+    docId?: string;
+    scriptUrl: string;
+  };
+  status: "pending" | "processing" | "completed" | "failed";
+  timestamp: number;
+}
+
 interface Task {
   id: string;
   epicName: string;
@@ -149,6 +166,8 @@ export default function App() {
   } | null>(null);
 
   const [collapsedEpics, setCollapsedEpics] = useState<Set<string>>(new Set());
+  const [pushQueue, setPushQueue] = useState<QueueItem[]>([]);
+  const [isProcessingQueue, setIsProcessingQueue] = useState(false);
 
   const toggleEpicCollapse = (epicName: string) => {
     setCollapsedEpics((prev) => {
@@ -180,6 +199,70 @@ export default function App() {
 
     initializeApp();
   }, []);
+
+  // background worker for queue
+  useEffect(() => {
+    const processNextInQueue = async () => {
+      if (isProcessingQueue || pushQueue.length === 0) return;
+
+      const nextItem = pushQueue.find((item) => item.status === "pending");
+      if (!nextItem) return;
+
+      setIsProcessingQueue(true);
+
+      // Update status to processing
+      setPushQueue((prev) =>
+        prev.map((q) =>
+          q.id === nextItem.id ? { ...q, status: "processing" } : q,
+        ),
+      );
+
+      try {
+        const { params, payload } = nextItem;
+        const bodyParams = new URLSearchParams();
+        bodyParams.append("tasksData", JSON.stringify(payload));
+        bodyParams.append("leaderFileId", params.leaderFileId);
+
+        if (params.docId) {
+          bodyParams.append("docId", params.docId);
+          if (params.tabId) bodyParams.append("docTabId", params.tabId);
+          if (params.version) bodyParams.append("version", params.version);
+          if (params.summary) bodyParams.append("summary", params.summary);
+        }
+
+        if (params.detailSheetName)
+          bodyParams.append("detailSheetName", params.detailSheetName);
+        if (params.leaderSheetName)
+          bodyParams.append("leaderSheetName", params.leaderSheetName);
+
+        await fetch(params.scriptUrl, {
+          method: "POST",
+          body: bodyParams,
+          mode: "no-cors",
+        });
+
+        showSuccess(
+          `Queue item ${nextItem.id.slice(0, 4)} pushed successfully!`,
+        );
+        // Remove completed item
+        setPushQueue((prev) => prev.filter((q) => q.id !== nextItem.id));
+        await testConnection(true);
+      } catch (err) {
+        console.error("Queue process error:", err);
+        showError(`Queue item failed!`);
+        // Mark as failed instead of removing maybe? For now just remove or set failed
+        setPushQueue((prev) =>
+          prev.map((q) =>
+            q.id === nextItem.id ? { ...q, status: "failed" } : q,
+          ),
+        );
+      } finally {
+        setIsProcessingQueue(false);
+      }
+    };
+
+    processNextInQueue();
+  }, [pushQueue, isProcessingQueue]);
 
   // Extract File ID from Google Sheets URL
   const extractFileIdFromUrl = (input: string): string => {
@@ -469,7 +552,7 @@ export default function App() {
             pointsDev: tc.pointsDev || "3",
             code: epicCode,
             system: epicSystem,
-            systemPrefix: "",
+            systemPrefix: "User",
             actor: "",
             actorPrefix: "User",
             epicOverview: epicOverview,
@@ -522,7 +605,7 @@ export default function App() {
             pointsDev: taskObj.pointsDev || "3",
             code: epicCode,
             system: epicSystem,
-            systemPrefix: "",
+            systemPrefix: "User",
             actor: "",
             actorPrefix: "User",
             epicOverview: epicOverview,
@@ -595,112 +678,92 @@ export default function App() {
     detailSheetName?: string | null,
     leaderSheetName?: string | null,
   ) => {
-    setSubmitting(true);
-    setLoading(true);
-    // Close modal if open
-    setShowDocTabModal(false);
-
-    try {
-      // --- GIỮ NGUYÊN LOGIC NHÓM TASK CŨ ---
-      const epicsMap = tasks.reduce((acc: any, t) => {
-        if (!acc[t.epicName]) acc[t.epicName] = [];
-        acc[t.epicName].push({
-          mainTask: t.mainTask,
-          timeValue: t.timeValue,
+    // Generate payload now while tasks state is still full
+    const epicsMap = tasks.reduce((acc: any, t) => {
+      if (!acc[t.epicName]) acc[t.epicName] = [];
+      acc[t.epicName].push({
+        mainTask: t.mainTask,
+        timeValue: t.timeValue,
+        priority: t.priority,
+        complexity: t.complexity,
+        startDate: t.startDate,
+        endDate: t.endDate,
+        finishedDate: t.finishedDate,
+        delayDate: t.delayDate,
+        statusLeader: t.statusLeader,
+        pointsLeader: t.pointsLeader,
+        sourceVersion: t.sourceVersion,
+        business: t.business,
+        statusPm: t.statusPm,
+        pointsPm: t.pointsPm,
+        pointsDev: t.pointsDev,
+        isTestCase: t.isTestCase || false,
+        subTasks: t.subTasks.split("\n").map((s) => ({
+          name: s.replace(/^[•-]\s*/, "").trim(),
+          status: t.status,
           priority: t.priority,
           complexity: t.complexity,
+          timeValue: t.timeValue,
           startDate: t.startDate,
           endDate: t.endDate,
-          finishedDate: t.finishedDate,
-          delayDate: t.delayDate,
-          statusLeader: t.statusLeader,
-          pointsLeader: t.pointsLeader,
-          sourceVersion: t.sourceVersion,
-          business: t.business,
-          statusPm: t.statusPm,
-          pointsPm: t.pointsPm,
-          pointsDev: t.pointsDev,
-          isTestCase: t.isTestCase || false,
-          subTasks: t.subTasks.split("\n").map((s) => ({
-            name: s.replace(/^[•-]\s*/, "").trim(),
-            status: t.status,
-            priority: t.priority,
-            complexity: t.complexity,
-            timeValue: t.timeValue,
-            startDate: t.startDate,
-            endDate: t.endDate,
-          })),
-        });
-        return acc;
-      }, {});
-
-      // --- CHUYỂN ĐỔI PAYLOAD (Đảm bảo lấy đúng epicCode cho tiêu đề) ---
-      const payload = Object.keys(epicsMap).map((name) => {
-        const sampleTask = tasks.find((t) => t.epicName === name);
-        return {
-          epicName: name,
-          epicCode: sampleTask?.code || "N/A",
-          epicSystem: sampleTask
-            ? `${sampleTask.systemPrefix} ${sampleTask.system}`.trim()
-            : "",
-          epicActor: sampleTask?.actorPrefix || "",
-          overview:
-            overviewMap && overviewMap[name] !== undefined
-              ? overviewMap[name]
-              : sampleTask?.epicOverview || "",
-          requirements:
-            requirementsMap && requirementsMap[name]
-              ? requirementsMap[name]
-              : sampleTask?.epicRequirements
-                ? JSON.parse(sampleTask.epicRequirements)
-                : [],
-          results:
-            resultsMap && resultsMap[name]
-              ? resultsMap[name]
-              : sampleTask?.epicResults
-                ? JSON.parse(sampleTask.epicResults)
-                : [],
-          tasks: epicsMap[name],
-        };
+        })),
       });
+      return acc;
+    }, {});
 
-      // --- CHUẨN BỊ PARAMS GỬI ĐI ---
-      const params = new URLSearchParams();
-      params.append("tasksData", JSON.stringify(payload));
-      params.append("leaderFileId", leaderFileId);
+    const payload = Object.keys(epicsMap).map((name) => {
+      const sampleTask = tasks.find((t) => t.epicName === name);
+      return {
+        epicName: name,
+        epicCode: sampleTask?.code || "N/A",
+        epicSystem: sampleTask
+          ? `${sampleTask.systemPrefix} ${sampleTask.system || "System"}`.trim()
+          : "",
+        epicActor: sampleTask?.actorPrefix || "",
+        overview:
+          overviewMap && overviewMap[name] !== undefined
+            ? overviewMap[name]
+            : sampleTask?.epicOverview || "",
+        requirements:
+          requirementsMap && requirementsMap[name]
+            ? requirementsMap[name]
+            : sampleTask?.epicRequirements
+              ? JSON.parse(sampleTask.epicRequirements)
+              : [],
+        results:
+          resultsMap && resultsMap[name]
+            ? resultsMap[name]
+            : sampleTask?.epicResults
+              ? JSON.parse(sampleTask.epicResults)
+              : [],
+        tasks: epicsMap[name],
+      };
+    });
 
-      // Gửi thêm docId nếu người dùng có nhập docUrl
-      if (docUrl) {
-        const docId = extractDocIdFromUrl(docUrl);
-        params.append("docId", docId);
-        if (tabId) {
-          params.append("docTabId", tabId);
-        }
-        if (version) params.append("version", version);
-        if (summary) params.append("summary", summary);
-      }
+    // Add to queue
+    const newQueueItem: QueueItem = {
+      id: crypto.randomUUID(),
+      payload,
+      params: {
+        tabId,
+        version,
+        summary,
+        detailSheetName,
+        leaderSheetName,
+        leaderFileId,
+        docId: docUrl ? extractDocIdFromUrl(docUrl) : undefined,
+        scriptUrl,
+      },
+      status: "pending",
+      timestamp: Date.now(),
+    };
 
-      if (detailSheetName) params.append("detailSheetName", detailSheetName);
-      if (leaderSheetName) params.append("leaderSheetName", leaderSheetName);
+    setPushQueue((prev) => [...prev, newQueueItem]);
+    showSuccess("Task added to background queue!");
 
-      // --- GỬI REQUEST ---
-      await fetch(scriptUrl, {
-        method: "POST",
-        body: params,
-        mode: "no-cors",
-      });
-
-      showSuccess("Data pushed to Sheets & Doc successfully!");
-      setTasks([]);
-      // Refresh connection info after push
-      await testConnection(true);
-    } catch (err) {
-      console.error(err);
-      showError("Submit failed!");
-    } finally {
-      setLoading(false);
-      setSubmitting(false);
-    }
+    // Immediately clear tasks to allow new import
+    setTasks([]);
+    setShowDocTabModal(false);
   };
 
   const handleSubmit = async (e?: FormEvent) => {
@@ -770,6 +833,7 @@ export default function App() {
             onImportClick={() => setShowImportModal(true)}
             onSubmit={() => handleSubmit()}
             onLogoClick={() => setTasks([])}
+            pushQueue={pushQueue}
           />
 
           {/* Empty State when no connection */}

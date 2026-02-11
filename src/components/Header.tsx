@@ -20,6 +20,7 @@ interface HeaderProps {
   onImportClick: () => void;
   onSubmit: () => void;
   onLogoClick: () => void;
+  pushQueue?: any[];
 }
 
 export default function Header({
@@ -30,10 +31,15 @@ export default function Header({
   onImportClick,
   onSubmit,
   onLogoClick,
+  pushQueue = [],
 }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showQueueDetails, setShowQueueDetails] = useState(false);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
+  const activeQueueCount = pushQueue.length;
+  const isSyncing = activeQueueCount > 0 || loading;
 
   return (
     <div className="sticky top-0 z-50 px-3 py-1.5 group/header">
@@ -156,24 +162,85 @@ export default function Header({
               Import
             </button>
 
-            <button
-              type="button"
-              onClick={onSubmit}
-              disabled={loading || tasksLength === 0}
-              className="h-8 px-4 bg-emerald-500/10 border-l border-zinc-800/50 text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all flex items-center gap-2 text-xs font-bold disabled:opacity-20 disabled:hover:bg-transparent disabled:hover:text-emerald-400 disabled:cursor-not-allowed"
+            <div
+              className="relative"
+              onMouseEnter={() => setShowQueueDetails(true)}
+              onMouseLeave={() => setShowQueueDetails(false)}
             >
-              {loading ? (
-                <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  Syncing
-                </>
-              ) : (
-                <>
-                  <Rocket className="w-3.5 h-3.5" />
-                  Push Cloud
-                </>
+              <button
+                type="button"
+                onClick={onSubmit}
+                disabled={loading || tasksLength === 0}
+                className={`h-8 px-4 border-l border-zinc-800/50 transition-all flex items-center gap-2 text-xs font-bold disabled:opacity-20 disabled:hover:bg-transparent disabled:cursor-not-allowed ${
+                  activeQueueCount > 0
+                    ? "bg-amber-500/10 text-amber-400 hover:bg-amber-500 hover:text-white"
+                    : "bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-white"
+                }`}
+              >
+                {isSyncing ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    {activeQueueCount > 0
+                      ? `In Queue (${activeQueueCount})`
+                      : "Syncing"}
+                  </>
+                ) : (
+                  <>
+                    <Rocket className="w-3.5 h-3.5" />
+                    Push Cloud
+                  </>
+                )}
+              </button>
+
+              {/* Queue Details Popover */}
+              {showQueueDetails && activeQueueCount > 0 && (
+                <div className="absolute top-full right-0 mt-2 w-64 bg-zinc-900 border border-zinc-800 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.7)] p-2 animate-in fade-in slide-in-from-top-2 duration-200 z-[100]">
+                  <div className="px-2 py-1.5 border-b border-zinc-800 mb-2 flex justify-between items-center">
+                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
+                      Sync Queue
+                    </span>
+                    <span className="text-[10px] bg-amber-500/20 text-amber-500 px-1.5 py-0.5 rounded-full font-bold">
+                      {activeQueueCount} items
+                    </span>
+                  </div>
+                  <div className="max-h-60 overflow-y-auto custom-scrollbar flex flex-col gap-1">
+                    {pushQueue.map((item, idx) => (
+                      <div
+                        key={item.id}
+                        className="p-2 rounded-lg bg-zinc-950/50 border border-zinc-800/50 flex flex-col gap-1"
+                      >
+                        <div className="flex justify-between items-start">
+                          <span className="text-[10px] font-bold text-zinc-300 truncate max-w-[150px]">
+                            {item.payload[0]?.epicName || "Unnamed Epic"}
+                          </span>
+                          {item.status === "processing" ? (
+                            <span className="text-[8px] bg-blue-500/20 text-blue-400 px-1 py-0.5 rounded animate-pulse">
+                              Syncing...
+                            </span>
+                          ) : (
+                            <span className="text-[8px] bg-zinc-800 text-zinc-500 px-1 py-0.5 rounded">
+                              Waiting
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[9px] text-zinc-500 font-mono">
+                            {item.payload[0]?.epicCode || "N/A"}
+                          </span>
+                          <span className="text-[9px] text-zinc-600 font-medium italic">
+                            •{" "}
+                            {new Date(item.timestamp).toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
-            </button>
+            </div>
           </div>
         </div>
 
