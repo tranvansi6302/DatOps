@@ -194,7 +194,7 @@ export default function Header({
 
               {/* Queue Details Popover */}
               {showQueueDetails && activeQueueCount > 0 && (
-                <div className="absolute top-full right-0 mt-2 w-64 bg-zinc-900 border border-zinc-800 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.7)] p-2 animate-in fade-in slide-in-from-top-2 duration-200 z-[100]">
+                <div className="absolute top-full right-0 mt-2 w-64 bg-zinc-900 border border-zinc-800 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.7)] p-2 animate-in fade-in slide-in-from-top-2 duration-200 z-100">
                   <div className="px-2 py-1.5 border-b border-zinc-800 mb-2 flex justify-between items-center">
                     <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
                       Sync Queue
@@ -204,7 +204,7 @@ export default function Header({
                     </span>
                   </div>
                   <div className="max-h-60 overflow-y-auto custom-scrollbar flex flex-col gap-1">
-                    {pushQueue.map((item, idx) => (
+                    {pushQueue.map((item) => (
                       <div
                         key={item.id}
                         className="p-2 rounded-lg bg-zinc-950/50 border border-zinc-800/50 flex flex-col gap-1"
